@@ -24,13 +24,13 @@ pseudocode, and practice traces. The current sections cover:
 
 | File | Your work |
 |---|---|
-| `README.md` | Complete the traces and complexity questions |
-| `string_search.py` | Fill in the four implementation TODOs |
+| `README.md` | Completed traces and complexity questions |
+| `string_search.py` | Completed implementations |
 | `lab_checks.py` | Provided automated checks; do not edit |
 
-- [ ] Part 1: Trace and implement naive search.
-- [ ] Part 2: Trace, implement, and analyze Rabin–Karp.
-- [ ] Part 3: Trace the prefix table and matcher, implement KMP, and analyze its running time.
+- [x] Part 1: Trace and implement naive search.
+- [x] Part 2: Trace, implement, and analyze Rabin–Karp.
+- [x] Part 3: Trace the prefix table and matcher, implement KMP, and analyze its running time.
 
 ### Shared conventions
 
@@ -84,9 +84,9 @@ occurs. Record where $j$ stops and whether you add $s$ to the results.
 | Shift `s` | Text indices checked | Final `j` | Append `s`? |
 |---|---|---|---|
 | 1 | `1` | 0 | No |
-| 2 | TODO | TODO | TODO |
-| 4 | TODO | TODO | TODO |
-| 5 | TODO | TODO | TODO |
+| 2 | `2, 3` | 1 | No |
+| 4 | `4, 5, 6` | 2 | No |
+| 5 | `5, 6, 7` | 3 | Yes |
 
 ### 1.2 Implementation
 
@@ -171,12 +171,10 @@ At shift `6`, the hash is `7`; all five characters match, so record `6`.
 
 **TODO 2.1:** Trace these two steps:
 
-1. **Move from shift `6` to `7`.** Which digit leaves the window, and which
-   digit enters? Substitute them into the rolling-hash formula and calculate
-   the new hash.
-2. **Check shift `12`.** Its hash is `7`, so compare the characters. List the
-   text and pattern indices checked before stopping. Is this a match or a
-   spurious hit?
+1. **Move from shift `6` to `7`.** The digit `3` leaves and `2` enters:
+   `(7 - 3 * 3) * 10 + 2 = -18`, so the new hash is `-18 mod 13 = 8`.
+2. **Check shift `12`.** Compare text index `12` (`6`) with pattern index
+   `0` (`3`); they differ immediately. It is a spurious hit, not a match.
 
 ### 2.2 Implementation
 
@@ -203,11 +201,10 @@ hash comparisons and character checks.
 
 | Case | Build hashes | Search | Total |
 |---|---|---|---|
-| Best | TODO | TODO | TODO |
-| Worst | TODO | TODO | TODO |
+| Best | Θ(m) | Θ(n) | Θ(n + m) |
+| Worst | Θ(m) | Θ(nm) | Θ(nm) |
 
-For each case, explain in one sentence how many windows need character checks
-and how many characters are checked in each one.
+In the best case, no window needs character checks because every hash differs from the pattern hash. In the worst case, all `n - m + 1` windows need checks, and each checks `m` characters before confirming its match.
 
 ### Connection: Searching for several patterns
 
@@ -301,11 +298,12 @@ The first row is worked: `P[2] == P[4]`, so `k` increases to `3`.
 | Index `j` | Starting `k` | Fallbacks | `pi[j]` |
 |---|---|---|---|
 | 4 | 2 | none | 3 |
-| 5 | 3 | TODO | TODO |
-| 6 | 0 | TODO | TODO |
+| 5 | 3 | `3 -> 1 -> 0` | 0 |
+| 6 | 0 | none | 1 |
 
-Now trace the matcher at `i = 8`, starting with `q = 6`. Which pattern index
-is compared with `T[8]`? What shift is recorded, and what is `q` afterward?
+trace the matcher at `i = 8`, starting with `q = 6`. Pattern index `6` is
+compared with `T[8]`; it matches. Shift `2` is recorded, and `q` becomes
+`pi[6] = 1` afterward.
 
 ### 3.2 Implementation
 
@@ -330,12 +328,14 @@ Give tight bounds in terms of $n$ and $m$.
 
 | Case | Build `pi` | Search | Total |
 |---|---|---|---|
-| Best | TODO | TODO | TODO |
-| Worst | TODO | TODO | TODO |
+| Best | Θ(m) | Θ(n) | Θ(n + m) |
+| Worst | Θ(m) | Θ(n) | Θ(n + m) |
 
-Explain the worst-case bound in a few lines. Across the whole scan, how often
-can `q` increase? How does that limit the number of fallbacks? Use the same
-reasoning for `k` when building `pi`.
+For the worst case, `q` can increase at most once per text character, so it
+increases at most `n` times. Every fallback strictly decreases `q`, and the
+total number of fallbacks is bounded by the total number of increases (plus
+the initial constant), so the scan is Θ(n). The same accounting applies to
+`k` while building `pi`: it increases at most `m` times and its fallbacks are bounded by those increases, giving Θ(m) preprocessing time.
 
 ---
 
